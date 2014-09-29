@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML+RDFa 1.0//EN" "http://www.w3.org/MarkUp/DTD/xhtml-rdfa-1.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:xsd ="http://www.w3.org/2001/XMLSchema#"
+  xmlns:owl="http://www.w3.org/2002/07/owl#"
+  xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+  xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+  xmlns:dcterms="http://purl.org/dc/terms/"
+  xmlns:foaf="http://xmlns.com/foaf/0.1/"
+
+  xml:lang="en"
+  xmlns:this="http://stats.270a.info/cube-designer">
+    <head>
+        <meta charset="utf-8"/>
+        <title>Linked Statistical Data (LSD) Cube Designer</title>
+
+        <link rel="shortcut icon" href="http://270a.info/favicon.ico"/>
+        <link rel="stylesheet" type="text/css" href="http://270a.info/theme/default/css/display.css" media="all"/>
+
+        <script src="js/jquery-1.11.0.min.js"></script>
+        <script src="js/utils.js"></script>
+        <style type="text/css">
+#lsd-cube-designer ul {
+margin-left:18px;
+}
+#lsd-cube-designer li {
+list-style-type:none;
+}
+
+#lsd-cube-designer tbody th {
+text-align:center;
+}
+#lsd-cube-designer tbody th input {
+width:95%;
+margin:0 auto;
+}
+#lsd-cube-designer a {
+text-decoration:none;
+}
+
+#lsd-cube-designer tbody th,
+#lsd-cube-designer tbody td {
+background-color:rgba(128,128,128,0.1);
+}
+#lsd-cube-designer tbody th:nth-last-child(2),
+#lsd-cube-designer tbody td:nth-last-child(2) {
+background-color:rgba(128,128,128,0.15);
+}
+#lsd-cube-designer tbody th:last-child,
+#lsd-cube-designer tbody td:last-child {
+background-color:rgba(128,128,128,0.2);
+}
+.qbCodeListInfo {
+background-color:rgba(128,128,128,0.05);
+margin-left:0 !important;
+padding:18px;
+}
+
+#lsd-cube-designer tbody td[class="qb:DimensionProperty"] {
+border-left:1px solid #fff;
+}
+#lsd-cube-designer tbody td[class="qb:DimensionProperty"]:first-child {
+border-left:0;
+}
+
+#lsd-cube-designer .processing {
+background-image:url("theme/base/images/icons/icon_processing.gif");
+background-repeat:no-repeat;
+background-position:100% 0%;
+width:auto;
+height:auto;
+}
+
+#lsd-cube-designer ul.results > li {
+margin-bottom:2em;
+}
+
+#lsd-cube-designer th,
+#lsd-cube-designer td {
+padding:0.5em;
+}
+#lsd-cube-designer th {
+vertical-align: middle;
+}
+#lsd-cube-designer tfoot td {
+padding-top:1em;
+}
+#lsd-cube-designer tfoot ul {
+margin-left:0;
+}
+
+#lsd-cube-designer #export {
+margin-bottom:1em;
+opacity:0.1;
+}
+#lsd-cube-designer #export * {
+display:inline;
+}
+
+#lsd-cube-designer #export.opacity-1 {
+opacity:1;
+}
+#lsd-cube-designer button {
+width:36px;
+}
+
+#lsd-cube-designer #wrap {
+max-width:1259px;
+}
+        </style>
+
+        <meta name="description" content="Linked Statistical Data (LSD) Cube Designer"/>
+        <meta name="author" content="http://csarven.ca/#i"/>
+    </head>
+
+    <body id="site_home" about="[this:]" typeof="foaf:Document">
+        <div id="wrap">
+            <div id="header">
+                <address id="site_contact" class="vcard">
+                    <a href="http://stats.270a.info/cube-designer" class="url home bookmark">
+                        <object about="[this:media/images/270a.svg]" typeof="foaf:Image" property="rdfs:label" content="270a logo" type="image/svg+xml" data="http://270a.info/media/images/270a.svg" width="48" height="48"></object>
+                        <span class="fn org">270a</span>
+                    </a>
+                </address>
+            </div>
+
+            <div id="core">
+                <div id="content" class="hentry">
+                    <h1 property="dcterms:title" class="entry-title">LSD Cube Designer</h1>
+
+                    <div id="content_inner">
+                        <div class="entry-content" property="dcterms:description" datatype="">
+                            <table id="lsd-cube-designer" class="qbComponentProperty">
+                                <caption>Create and export a cube structure</caption>
+                                <thead>
+                                    <tr>
+                                        <th colspan="1" class="qbDimensionProperty">Dimensions <button class="propertyButton" value="qb:DimensionProperty" title="Search dimension property">+</button></th>
+                                        <th class="qbMeasureProperty">Measure <button class="propertyButton" value="qb:MeasureProperty" title="Search measure property">+</button></th>
+                                        <th class="qbAttributeProperty">Attribute <button class="propertyButton" value="qb:AttributeProperty" title="Search attribute property">+</button></th>
+                                    </tr>
+                                </thead>
+                                <tfoot>
+                                    <tr>
+                                        <td colspan="0">
+                                            <dl id="export">
+                                                <dt>Export Cube Structure (Turtle):</dt>
+                                                <dd><button disabled="disabled" class="downloadButton" title="Export Cube Structure (Turtle)">&#8595;</button></dd>
+                                            </dl>
+
+                                            <dl id="legend">
+                                                <dt>Make it so:</dt>
+                                                <dd>
+                                                    <ul>
+                                                        <li><kbd>Esc</kbd> key to cancel search</li>
+                                                        <li><button>+</button> to search and add property</li>
+                                                        <li><button>&#8505;</button> for more information</li>
+                                                        <li><button>&#10004;</button> to select property</li>
+                                                        <li><button>x</button> to deselect property</li>
+                                                        <li><button>&#8595;</button> to download cube structure</li>
+                                                    </ul>
+                                                </dd>
+                                            </dl>
+                                        </td>
+                                    </tr>
+                                </tfoot>
+                                <tbody>
+                                    <tr><td class="qb:DimensionProperty"></td><td class="qb:MeasureProperty"></td><td class="qb:AttributeProperty"></td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <dl id="page_notice">
+                    <dt>Page notice</dt>
+                    <dd>
+                        <ul>
+                            <li>Creator: <a rel="dcterms:creator foaf:maker" rev="foaf:made" href="http://csarven.ca/#i"><span property="rdfs:label foaf:name">Sarven Capadisli</span></a></li>
+                            <li class="notice_updated">Last updated: <abbr property="dcterms:issued" datatype="xsd:dateTime" content="2014-09-23T00:00:00Z" class="published updated" title="2014-09-23T00:00:00Z">2014-09-23</abbr></li>
+                        </ul>
+                    </dd>
+                </dl>
+            </div>
+
+        </div>
+
+    </body>
+</html>

@@ -171,13 +171,10 @@ var LSD = {
 
                     for (var i = 0; i < LSD.C.Org.length; i++) {
                         (function (i) {
-                            resultsNode.addClass(LSD.S.Processing);
                             var queryURL = LSD.U.createSPARQLQueryURLWithTextInput(LSD.C.Org[i]["void:sparqlEndpoint"], propertyType, propertyInput);
                             LSD.U.getSPARQLQuery(queryURL, 'getPropertyInfo', resultsNode, LSD.C.Org[i]);
                         })(i);
                     }
-
-                    resultsNode.removeClass(LSD.S.Processing);
 
                     setTimeout(function() {
                         if (resultsNode.find('li').length == 0) {
@@ -245,18 +242,19 @@ var LSD = {
 
                         if($(this).closest('td[class="qb:DimensionProperty"]').length > 0) {
                             var thQBDimensionProperty = $('#lsd-cube-designer thead th[colspan]');
-                            thQBDimensionProperty.attr('colspan', (parseInt(thQBDimensionProperty.attr('colspan'))-1));
 
-                            $.each(LSD.C.Property, function(i, v) {
-                                LSD.C.Property[i]["index"] -= 1;
-                            });
-
-                            if($(this).closest('td[class="qb:DimensionProperty"]').length == 1) {
+                            if(thQBDimensionProperty.attr('colspan') > 1) {
                                 $(this).closest('td[class="qb:DimensionProperty"]').remove();
                             }
                             else {
                                 $(this).parent().empty();                            
                             }
+
+                            thQBDimensionProperty.attr('colspan', (parseInt(thQBDimensionProperty.attr('colspan'))-1));
+
+                            $.each(LSD.C.Property, function(i, v) {
+                                LSD.C.Property[i]["index"] -= 1;
+                            });
                         }
                         else {
                             $(this).parent().empty();
@@ -411,8 +409,7 @@ componentSpecification
 //                mimeType: 'application/sparql-results+json,
 
                 beforeSend: function(xhr) {
-//                    $(LSD.S.qbComponentProperty)
-//                        .addClass(LSD.S.Processing);
+                    resultsNode.addClass(LSD.S.Processing);
                 },
                 error: function (xhr, textStatus, errorThrown) {
 //TODO
@@ -422,8 +419,7 @@ componentSpecification
 //                    }
                     alert(errorReported || errorThrown || textStatus);
 
-//                    $(LSD.S.qbComponentProperty)
-//                        .removeClass(LSD.S.Processing);
+                    resultsNode.removeClass(LSD.S.Processing);
                 },
                 timeout: 5000,
                 success: function(data, textStatus) {
@@ -467,11 +463,7 @@ componentSpecification
                         }
 
                         resultsNode.append(results);
-
-//                        resultsNode.removeClass(LSD.S.Processing);
-                    }
-                    else {
-                    //TODO: No results
+                        resultsNode.removeClass(LSD.S.Processing);
                     }
                 }
             });

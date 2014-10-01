@@ -178,8 +178,11 @@ var LSD = {
 
                     setTimeout(function() {
                         if (resultsNode.find('li').length == 0) {
-                            resultsNode.append('<li class="nope">No results found for <em>' + propertyInput + '</em></li>');
+                            resultsNode.addClass('no-matches');
+                            resultsNode.append('<li">No results found for <em>' + propertyInput + '</em></li>');
                             indexNode.find('.propertyInput').focus();
+
+                            resultsNode.removeClass(LSD.S.Processing);
                         }
                     }, 200);
                 }

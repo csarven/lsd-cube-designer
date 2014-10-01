@@ -169,12 +169,13 @@ var LSD = {
 
                     var resultsNode = indexNode.find('.results');
 
-                    $.each(LSD.C.Org, function(index, org) {
-                        resultsNode.addClass(LSD.S.Processing);
-                        var queryURL = LSD.U.createSPARQLQueryURLWithTextInput(org["void:sparqlEndpoint"], propertyType, propertyInput);
-
-                        LSD.U.getSPARQLQuery(queryURL, 'getPropertyInfo', resultsNode, org);
-                    });
+                    for (var i = 0; i < LSD.C.Org.length; i++) {
+                        (function (i) {
+                            resultsNode.addClass(LSD.S.Processing);
+                            var queryURL = LSD.U.createSPARQLQueryURLWithTextInput(LSD.C.Org[i]["void:sparqlEndpoint"], propertyType, propertyInput);
+                            LSD.U.getSPARQLQuery(queryURL, 'getPropertyInfo', resultsNode, LSD.C.Org[i]);
+                        })(i);
+                    }
 
                     resultsNode.removeClass(LSD.S.Processing);
 
@@ -183,7 +184,7 @@ var LSD = {
                             resultsNode.append('<li class="nope">No results found for <em>' + propertyInput + '</em></li>');
                             indexNode.find('.propertyInput').focus();
                         }
-                    }, 100);
+                    }, 200);
                 }
 
                 if(event.keyCode == 27) { // Escape Key
@@ -414,6 +415,7 @@ componentSpecification
 //                        .addClass(LSD.S.Processing);
                 },
                 error: function (xhr, textStatus, errorThrown) {
+//TODO
                     var errorReported = null;
 //                    if (xhr.responseXML) {
 //                        errorReported = $('#error', xhr.responseXML).text();
@@ -423,9 +425,8 @@ componentSpecification
 //                    $(LSD.S.qbComponentProperty)
 //                        .removeClass(LSD.S.Processing);
                 },
-                timeout: 10000,
+                timeout: 5000,
                 success: function(data, textStatus) {
-
                     if (data.results.bindings.length > 0) {
                         switch(queryType) {
                             case 'getPropertyInfo':
@@ -466,6 +467,7 @@ componentSpecification
                         }
 
                         resultsNode.append(results);
+
 //                        resultsNode.removeClass(LSD.S.Processing);
                     }
                     else {

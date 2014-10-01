@@ -281,12 +281,21 @@ var LSD = {
                         
                         $('#export').on('click', '.downloadButton', function(event) {
                             var components = componentSpecification = '';
+                            var delimiter = '/';
+                            var start = 3;
+                            var componentsList = {};
+
                             components = "<" + $.map($('.qbComponentProperty tbody a.property'), function( i ) {
-                                return i;
+                                var property = i.href;
+                                var c = "http://example.org/component/foo/" + property.split(delimiter).slice(start).join(delimiter);
+                                componentsList[property] = c;
+                                return c;
                             }).join("> ,\n        <") + ">";
 
                             $.each($('.qbComponentProperty tbody td'), function(index, value) { 
                                 var cSProperty = cSOrder = '';
+                                var cProperty = $(value).find("a.property").attr("href");
+
                                 switch($(value).attr('class')) {
                                     case 'qb:DimensionProperty':
                                     cSProperty = 'qb:dimension';
@@ -300,10 +309,10 @@ var LSD = {
                                     break;
                                 }
 
-                                componentSpecification += "<http://example.org/component/foo/" + (index+1) + ">\n" +
+                                componentSpecification += "<" + componentsList[cProperty] + ">\n" +
                                 "    a qb:ComponentSpecification ;\n" +
-                                "    qb:componentProperty <" + $(value).find("a").attr("href") + "> ;\n" +
-                                "    " + cSProperty + " <" + $(value).find("a").attr("href") + ">";
+                                "    qb:componentProperty <" + cProperty + "> ;\n" +
+                                "    " + cSProperty + " <" + cProperty + ">";
 
                                 componentSpecification += cSOrder;
 
@@ -326,9 +335,7 @@ var LSD = {
 "#    .\n\n" +
 
 "<http://example.org/structure/foo>\n" +
-"    a\n" +
-"        qb:DataStructureDefinition ,\n" +
-"        sdmx:DataStructureDefinition ;\n" +
+"    a qb:DataStructureDefinition ;\n" +
 "    qb:component\n" +
 "        " + components + "\n" +
 "    .\n\n" +

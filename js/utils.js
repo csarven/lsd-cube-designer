@@ -1,7 +1,7 @@
 /*
- * @category  LSD Cube Designer
- * @author    Sarven Capadisli <info@csarven.ca>
- * @license   Apache License 2.0
+ * @title      LSD Cube Designer
+ * @author     Sarven Capadisli <info@csarven.ca>
+ * @license    Apache License 2.0
  */
 
 var LSD = {
@@ -165,7 +165,7 @@ var LSD = {
                     var indexNode = $('#lsd-cube-designer tbody td:nth-child(' + ($(this).parent().index()+1) + ')');
 
                     indexNode.find('.results').remove();
-                    indexNode.html('<ul class="results"></ul>');
+                    indexNode.append('<ul class="results"></ul>');
 
                     var resultsNode = indexNode.find('.results');
 
@@ -177,6 +177,13 @@ var LSD = {
                     });
 
                     resultsNode.removeClass(LSD.S.Processing);
+
+                    setTimeout(function() {
+                        if (resultsNode.find('li').length == 0) {
+                            resultsNode.append('<li class="nope">No results found for <em>' + propertyInput + '</em></li>');
+                            indexNode.find('.propertyInput').focus();
+                        }
+                    }, 50);
                 }
 
                 if(event.keyCode == 27) { // Escape Key

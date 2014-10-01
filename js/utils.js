@@ -183,7 +183,7 @@ var LSD = {
                             resultsNode.append('<li class="nope">No results found for <em>' + propertyInput + '</em></li>');
                             indexNode.find('.propertyInput').focus();
                         }
-                    }, 50);
+                    }, 100);
                 }
 
                 if(event.keyCode == 27) { // Escape Key

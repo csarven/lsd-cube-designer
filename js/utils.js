@@ -368,20 +368,18 @@ componentSpecification
 //    OPTIONAL { ?codeList dcterms:license ?license . }
 //    OPTIONAL { ?codeList owl:versionInfo ?versionInfo . }
 //    OPTIONAL { ?codeList dcterms:issued ?issued . }
+//    OPTIONAL { 
+//        SELECT ?hasTopConcept ?hasTopConceptPrefLabel
+//        WHERE {
+//            ?codeList skos:hasTopConcept ?hasTopConcept .
+//            OPTIONAL { ?hasTopConcept skos:prefLabel ?hasTopConceptPrefLabel . }
+//        }
+//        LIMIT 1
+//    }
 //}
 //LIMIT 1
 
-
-//    OPTIONAL { 
-//        SELECT 
-//        WHERE {
-//            ?codeList skos:hasTopConcept ?hasTopConcept .
-//        }
-//        LIMIT 5
-//    }
-
-
-            return sparqlEndpoint + "?query=PREFIX+rdfs%3A+%3Chttp%3A%2F%2Fwww.w3.org%2F2000%2F01%2Frdf-schema%23%3E%0D%0APREFIX+owl%3A+%3Chttp%3A%2F%2Fwww.w3.org%2F2002%2F07%2Fowl%23%3E%0D%0APREFIX+dcterms%3A+%3Chttp%3A%2F%2Fpurl.org%2Fdc%2Fterms%2F%3E%0D%0APREFIX+skos%3A+%3Chttp%3A%2F%2Fwww.w3.org%2F2004%2F02%2Fskos%2Fcore%23%3E%0D%0APREFIX+qb%3A+%3Chttp%3A%2F%2Fpurl.org%2Flinked-data%2Fcube%23%3E%0D%0APREFIX+sdmx%3A+%3Chttp%3A%2F%2Fpurl.org%2Flinked-data%2Fsdmx%23%3E%0D%0A%0D%0ASELECT+*%0D%0AWHERE+{%0D%0A++++%3C" + property +"%3E+qb%3AcodeList+%3FcodeList+.%0D%0A++++OPTIONAL+{+%3FcodeList+skos%3AprefLabel+%3FprefLabel+.+}%0D%0A++++OPTIONAL+{+%3FcodeList+skos%3Adefinition+%3Fdefinition+.+}%0D%0A++++OPTIONAL+{+%3FcodeList+dcterms%3Alicense+%3Flicense+.+}%0D%0A++++OPTIONAL+{+%3FcodeList+owl%3AversionInfo+%3FversionInfo+.+}%0D%0A++++OPTIONAL+{+%3FcodeList+dcterms%3Aissued+%3Fissued+.+}%0D%0A}%0DLIMIT 1";
+            return sparqlEndpoint + "?query=PREFIX+owl%3A+%3Chttp%3A%2F%2Fwww.w3.org%2F2002%2F07%2Fowl%23%3E%0D%0APREFIX+dcterms%3A+%3Chttp%3A%2F%2Fpurl.org%2Fdc%2Fterms%2F%3E%0D%0APREFIX+skos%3A+%3Chttp%3A%2F%2Fwww.w3.org%2F2004%2F02%2Fskos%2Fcore%23%3E%0D%0APREFIX+qb%3A+%3Chttp%3A%2F%2Fpurl.org%2Flinked-data%2Fcube%23%3E%0D%0A%0D%0ASELECT+*%0D%0AWHERE+{%0D%0A++++%3C" + property + "%3E+qb%3AcodeList+%3FcodeList+.%0D%0A++++OPTIONAL+{+%3FcodeList+skos%3AprefLabel+%3FprefLabel+.+}%0D%0A++++OPTIONAL+{+%3FcodeList+skos%3Adefinition+%3Fdefinition+.+}%0D%0A++++OPTIONAL+{+%3FcodeList+dcterms%3Alicense+%3Flicense+.+}%0D%0A++++OPTIONAL+{+%3FcodeList+owl%3AversionInfo+%3FversionInfo+.+}%0D%0A++++OPTIONAL+{+%3FcodeList+dcterms%3Aissued+%3Fissued+.+}%0D%0A++++OPTIONAL+{+%0D%0A++++++++SELECT+%3FhasTopConcept+%3FhasTopConceptPrefLabel%0D%0A++++++++WHERE+{%0D%0A++++++++++++%3FcodeList+skos%3AhasTopConcept+%3FhasTopConcept+.%0D%0A++++++++++++OPTIONAL+{+%3FhasTopConcept+skos%3AprefLabel+%3FhasTopConceptPrefLabel+.+}%0D%0A++++++++}%0D%0A++++++++LIMIT+1%0D%0A++++}%0D%0A}%0D%0ALIMIT+1";
         },
 
         createSPARQLQueryURLWithTextInput: function(sparqlEndpoint, propertyType, textInput) {
@@ -442,7 +440,7 @@ componentSpecification
                                 break;
 
                             case 'getCodeListInfo':
-                                var results = codeList = definition = prefLabel = license = versionInfo = issued = hasTopConcepts = '';
+                                var results = codeList = definition = prefLabel = license = versionInfo = issued = hasTopConcept = '';
 
                                 $.each(data.results.bindings, function(index, object) {
                                     prefLabel += (typeof object.prefLabel !== "undefined") ? object.prefLabel.value : object.codeList.value ;
@@ -450,17 +448,17 @@ componentSpecification
 
                                     definition += (typeof object.definition !== "undefined") ? '<li>' + codeList + ': ' + object.definition.value + '</li>' : '<li>' + codeList + '</li>';
 
+                                    var hasTopConceptPrefLabel =  '';
+                                    hasTopConcept += (typeof object.hasTopConcept !== "undefined") ? '<li>e.g: <a  target="_blank" href="' + object.hasTopConcept.value + '">' + ((typeof object.hasTopConceptPrefLabel !== "undefined" && object.hasTopConceptPrefLabel.value != '') ? object.hasTopConceptPrefLabel.value : object.hasTopConcept.value) + '</a></li>' : '';
+
                                     license += (typeof object.license !== "undefined") ? '<li>License: <a target="_blank" href="' + object.license.value + '">' + object.license.value + '</a></li>' : '';
 
                                     versionInfo += (typeof object.versionInfo !== "undefined") ? '<li>Version: ' + object.versionInfo.value + '</li>' : '';
 
                                     issued += (typeof object.issued !== "undefined") ? '<li>Issued: ' + object.issued.value + '</li>' : '';
-//                                    if (object.hasTopConcepts) {
-//                                        hasTopConcepts += '<li>License: <a href="' + object.hasTopConcepts.value + '">' + object.hasTopConcepts.value + '</a></li>';
-//                                    }
                                 });
 
-                                results += '<ul class="qbCodeListInfo">' + definition + license + versionInfo + issued + '</ul>';
+                                results += '<ul class="qbCodeListInfo">' + definition + hasTopConcept + license + versionInfo + issued + '</ul>';
 
                                 break;
                         }

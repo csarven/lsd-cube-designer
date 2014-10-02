@@ -248,12 +248,11 @@ var LSD = {
 
                             if(thQBDimensionProperty.attr('colspan') > 1) {
                                 $(this).closest('td[class="qb:DimensionProperty"]').remove();
+                                thQBDimensionProperty.attr('colspan', (parseInt(thQBDimensionProperty.attr('colspan'))-1));
                             }
                             else {
                                 $(this).parent().empty();                            
                             }
-
-                            thQBDimensionProperty.attr('colspan', (parseInt(thQBDimensionProperty.attr('colspan'))-1));
 
                             $.each(LSD.C.Property, function(i, v) {
                                 LSD.C.Property[i]["index"] -= 1;

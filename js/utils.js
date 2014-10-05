@@ -368,24 +368,26 @@ componentSpecification
 
 //SELECT *
 //WHERE {
-//    <http://imf.270a.info/dimension/1.0/MBLD/REF_AREA> qb:codeList ?codeList .
+//    {
+//        SELECT ?codeList ?hasTopConcept ?hasTopConceptPrefLabel
+//        WHERE {
+//            <http://oecd.270a.info/attribute/1.0/TIME_FORMAT> qb:codeList ?codeList .
+//            OPTIONAL {
+//                ?codeList skos:hasTopConcept ?hasTopConcept .
+//                OPTIONAL { ?hasTopConcept skos:prefLabel ?hasTopConceptPrefLabel . }
+//            }
+//        }
+//        LIMIT 1
+//    }
 //    OPTIONAL { ?codeList skos:prefLabel ?prefLabel . }
 //    OPTIONAL { ?codeList skos:definition ?definition . }
 //    OPTIONAL { ?codeList dcterms:license ?license . }
 //    OPTIONAL { ?codeList owl:versionInfo ?versionInfo . }
 //    OPTIONAL { ?codeList dcterms:issued ?issued . }
-//    OPTIONAL { 
-//        SELECT ?hasTopConcept ?hasTopConceptPrefLabel
-//        WHERE {
-//            ?codeList skos:hasTopConcept ?hasTopConcept .
-//            OPTIONAL { ?hasTopConcept skos:prefLabel ?hasTopConceptPrefLabel . }
-//        }
-//        LIMIT 1
-//    }
 //}
 //LIMIT 1
 
-            return sparqlEndpoint + "?query=PREFIX+owl%3A+%3Chttp%3A%2F%2Fwww.w3.org%2F2002%2F07%2Fowl%23%3E%0D%0APREFIX+dcterms%3A+%3Chttp%3A%2F%2Fpurl.org%2Fdc%2Fterms%2F%3E%0D%0APREFIX+skos%3A+%3Chttp%3A%2F%2Fwww.w3.org%2F2004%2F02%2Fskos%2Fcore%23%3E%0D%0APREFIX+qb%3A+%3Chttp%3A%2F%2Fpurl.org%2Flinked-data%2Fcube%23%3E%0D%0A%0D%0ASELECT+*%0D%0AWHERE+{%0D%0A++++%3C" + property + "%3E+qb%3AcodeList+%3FcodeList+.%0D%0A++++OPTIONAL+{+%3FcodeList+skos%3AprefLabel+%3FprefLabel+.+}%0D%0A++++OPTIONAL+{+%3FcodeList+skos%3Adefinition+%3Fdefinition+.+}%0D%0A++++OPTIONAL+{+%3FcodeList+dcterms%3Alicense+%3Flicense+.+}%0D%0A++++OPTIONAL+{+%3FcodeList+owl%3AversionInfo+%3FversionInfo+.+}%0D%0A++++OPTIONAL+{+%3FcodeList+dcterms%3Aissued+%3Fissued+.+}%0D%0A++++OPTIONAL+{+%0D%0A++++++++SELECT+%3FhasTopConcept+%3FhasTopConceptPrefLabel%0D%0A++++++++WHERE+{%0D%0A++++++++++++%3FcodeList+skos%3AhasTopConcept+%3FhasTopConcept+.%0D%0A++++++++++++OPTIONAL+{+%3FhasTopConcept+skos%3AprefLabel+%3FhasTopConceptPrefLabel+.+}%0D%0A++++++++}%0D%0A++++++++LIMIT+1%0D%0A++++}%0D%0A}%0D%0ALIMIT+1";
+            return sparqlEndpoint + "?query=PREFIX+owl%3A+%3Chttp%3A%2F%2Fwww.w3.org%2F2002%2F07%2Fowl%23%3E%0D%0APREFIX+dcterms%3A+%3Chttp%3A%2F%2Fpurl.org%2Fdc%2Fterms%2F%3E%0D%0APREFIX+skos%3A+%3Chttp%3A%2F%2Fwww.w3.org%2F2004%2F02%2Fskos%2Fcore%23%3E%0D%0APREFIX+qb%3A+%3Chttp%3A%2F%2Fpurl.org%2Flinked-data%2Fcube%23%3E%0D%0A%0D%0ASELECT+*%0D%0AWHERE+{%0D%0A++++{%0D%0A++++++++SELECT+%3FcodeList+%3FhasTopConcept+%3FhasTopConceptPrefLabel%0D%0A++++++++WHERE+{%0D%0A++++++++++++%3C" + property + "%3E+qb%3AcodeList+%3FcodeList+.%0D%0A++++++++++++OPTIONAL+{%0D%0A++++++++++++++++%3FcodeList+skos%3AhasTopConcept+%3FhasTopConcept+.%0D%0A++++++++++++++++OPTIONAL+{+%3FhasTopConcept+skos%3AprefLabel+%3FhasTopConceptPrefLabel+.+}%0D%0A++++++++++++}%0D%0A++++++++}%0D%0A++++++++LIMIT+1%0D%0A++++}%0D%0A++++OPTIONAL+{+%3FcodeList+skos%3AprefLabel+%3FprefLabel+.+}%0D%0A++++OPTIONAL+{+%3FcodeList+skos%3Adefinition+%3Fdefinition+.+}%0D%0A++++OPTIONAL+{+%3FcodeList+dcterms%3Alicense+%3Flicense+.+}%0D%0A++++OPTIONAL+{+%3FcodeList+owl%3AversionInfo+%3FversionInfo+.+}%0D%0A++++OPTIONAL+{+%3FcodeList+dcterms%3Aissued+%3Fissued+.+}%0D%0A}%0D%0ALIMIT+1";
         },
 
         createSPARQLQueryURLWithTextInput: function(sparqlEndpoint, propertyType, textInput) {

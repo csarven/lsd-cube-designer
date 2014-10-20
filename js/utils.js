@@ -101,6 +101,7 @@ var LSD = {
         Error: 'error',
         Success: 'success',
         Processing: 'processing',
+        NoMatches: 'no-matches',
         qbComponentProperty: '.qbComponentProperty',
         qbDimensionProperty: '.qbDimensionProperty',
         qbMeasureProperty: '.qbMeasureProperty',
@@ -179,7 +180,7 @@ var LSD = {
                     setTimeout(function() {
                         if (resultsNode.find('li').length == 0) {
                             resultsNode.addClass('no-matches');
-                            resultsNode.append('<li>No results found for <em>' + propertyInput + '</em></li>');
+                            resultsNode.append('<li class="note">No results found for <em>' + propertyInput + '</em></li>');
                             indexNode.find('.propertyInput').focus();
 
                             resultsNode.removeClass(LSD.S.Processing);
@@ -472,7 +473,8 @@ componentSpecification
                         }
 
                         resultsNode.append(results);
-                        resultsNode.removeClass(LSD.S.Processing);
+                        resultsNode.removeClass(LSD.S.Processing + ' ' + LSD.S.NoMatches);
+                        resultsNode.find('.note').remove();
                     }
                 }
             });

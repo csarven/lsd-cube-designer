@@ -211,8 +211,8 @@ var LSD = {
                 }
             });
 
+
             $('#lsd-cube-designer').on('click', '.moreButton', function(event) {
-//TODO: Show concept scheme and example codes from a codelists, definitions?
                 var parent = $(this).parent();
                 parent.addClass(LSD.S.Processing);
                 var sparqlEndpoint = $(this).attr("title");
@@ -223,137 +223,141 @@ var LSD = {
                 $(this).remove();
                 parent.removeClass(LSD.S.Processing);
                 parent.append('<button class="addButton" value="' + property + '" title="Add property">&#10004;</button>');
+            });
 
-                parent.on('click', '.addButton', function(event) {
-                    var td = $(this).closest('td');
-                    var i = td.index();
-                    var propertyType = td.attr('class');
-                    var property = $(this).parent().find('.property');
 
-                    if($(this).closest('td[class="qb:DimensionProperty"]').length > 0) {
-                        $('#lsd-cube-designer thead button[value="' + propertyType + '"]').removeClass('dn');
+            $('#lsd-cube-designer').on('click', '.addButton', function(event) {
+                var td = $(this).closest('td');
+                var i = td.index();
+                var propertyType = td.attr('class');
+                var property = $(this).parent().find('.property');
 
-                        $.each(LSD.C.Property, function(i, v) {
-                            LSD.C.Property[i]["index"] += 1;
-                        });
-                    }
+                if($(this).closest('td[class="qb:DimensionProperty"]').length > 0) {
+                    $('#lsd-cube-designer thead button[value="' + propertyType + '"]').removeClass('dn');
 
-                    $('#lsd-cube-designer tbody td:nth-child(' + (i+1) + ') .results').remove();
-                    $('#lsd-cube-designer tbody tr:first-child td:nth-child(' + (i+1) + ')').html(property.get(0).outerHTML + ' <button class="removeButton" value="' + propertyType + '">x</button>');
-
-                    td.on('click', '.removeButton', function(event) {
-                        $('#lsd-cube-designer thead button[value="' + propertyType + '"]').removeClass('dn');
-
-                        if($(this).closest('td[class="qb:DimensionProperty"]').length > 0) {
-                            var thQBDimensionProperty = $('#lsd-cube-designer thead th[colspan]');
-
-                            if(thQBDimensionProperty.attr('colspan') > 1) {
-                                $(this).closest('td[class="qb:DimensionProperty"]').remove();
-                                thQBDimensionProperty.attr('colspan', (parseInt(thQBDimensionProperty.attr('colspan'))-1));
-                            }
-                            else {
-                                $(this).parent().empty();                            
-                            }
-
-                            $.each(LSD.C.Property, function(i, v) {
-                                LSD.C.Property[i]["index"] -= 1;
-                            });
-                        }
-                        else {
-                            $(this).parent().empty();
-                        }
-
-                        if ($('.qbComponentProperty tbody td[class="qb:DimensionProperty"] .property').length == 0 ||
-                            $('.qbComponentProperty tbody td[class="qb:MeasureProperty"] .property').length == 0 ||
-                            $('.qbComponentProperty tbody td[class="qb:AttributeProperty"] .property').length == 0) {
-                            $('.downloadButton:enabled').removeAttr('enabled').attr('disabled', 'disabled');
-                            $('#export').removeClass('opacity-1');
-                        }
+                    $.each(LSD.C.Property, function(i, v) {
+                        LSD.C.Property[i]["index"] += 1;
                     });
+                }
 
-                    if ($('.qbComponentProperty tbody td[class="qb:DimensionProperty"] .property').length > 0 &&
-                        $('.qbComponentProperty tbody td[class="qb:MeasureProperty"] .property').length > 0 &&
-                        $('.qbComponentProperty tbody td[class="qb:AttributeProperty"] .property').length > 0) {
+                $('#lsd-cube-designer tbody td:nth-child(' + (i+1) + ') .results').remove();
+                $('#lsd-cube-designer tbody tr:first-child td:nth-child(' + (i+1) + ')').html(property.get(0).outerHTML + ' <button class="removeButton" value="' + propertyType + '">x</button>');
 
-                        $('.downloadButton:disabled').removeAttr('disabled').attr('enabled', 'enabled');
-                        $('#export').addClass('opacity-1');
-                        
-                        
-                        $('#export').on('click', '.downloadButton', function(event) {
-                            var components = componentSpecification = '';
-                            var delimiter = '/';
-                            var start = 3;
-                            var componentsList = {};
+                if ($('.qbComponentProperty tbody td[class="qb:DimensionProperty"] .property').length > 0 &&
+                    $('.qbComponentProperty tbody td[class="qb:MeasureProperty"] .property').length > 0 &&
+                    $('.qbComponentProperty tbody td[class="qb:AttributeProperty"] .property').length > 0) {
 
-                            components = "<" + $.map($('.qbComponentProperty tbody a.property'), function( i ) {
-                                var property = i.href;
-                                var c = "http://example.org/component/foo/" + property.split(delimiter).slice(start).join(delimiter);
-                                componentsList[property] = c;
-                                return c;
-                            }).join("> ,\n        <") + ">";
-
-                            $.each($('.qbComponentProperty tbody td'), function(index, value) { 
-                                var cSProperty = cSOrder = '';
-                                var cProperty = $(value).find("a.property").attr("href");
-
-                                switch($(value).attr('class')) {
-                                    case 'qb:DimensionProperty':
-                                    cSProperty = 'qb:dimension';
-                                    cSOrder = " ;\n    qb:order \"" + (index+1) + "\"^^xsd:int" ;
-                                    break;
-                                case 'qb:MeasureProperty':
-                                    cSProperty = 'qb:measure';
-                                    break;
-                                case 'qb:AttributeProperty':
-                                    cSProperty = 'qb:attribute';
-                                    break;
-                                }
-
-                                componentSpecification += "<" + componentsList[cProperty] + ">\n" +
-                                "    a qb:ComponentSpecification ;\n" +
-                                "    qb:componentProperty <" + cProperty + "> ;\n" +
-                                "    " + cSProperty + " <" + cProperty + ">";
-
-                                componentSpecification += cSOrder;
-
-                                componentSpecification += "\n    .\n\n"
-                            });
+                    $('.downloadButton:disabled').removeAttr('disabled').attr('enabled', 'enabled');
+                    $('#export').addClass('opacity-1');
+                }
+                else {
+                    $('.downloadButton:enabled').removeAttr('enabled').attr('disabled', 'disabled');
+                    $('#export').removeClass('opacity-1');
+                }
+            });
 
 
-                            var data =
-"# Created using LSD Cube Designer https://github.com/csarven/lsd-cube-designer\n" +
-"@prefix e: <http://example.org/> .\n" +
-"@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .\n" +
-"@prefix skos: <http://www.w3.org/2004/02/skos/core#> .\n" +
-"@prefix qb: <http://purl.org/linked-data/cube#> .\n" +
-"@prefix sdmx: <http://purl.org/linked-data/sdmx#> .\n\n" +
+            $('#lsd-cube-designer').on('click', '.removeButton', function(event) {
+                var td = $(this).closest('td');
+                var propertyType = td.attr('class');
 
-"# Example dataset using the structure:\n" +
-"#<http://example.org/dataset/foo>\n" +
-"#    a qb:DataSet ;\n" +
-"#    qb:structure <http://example.org/structure/foo> ;\n" +
-"#    .\n\n" +
+                $('#lsd-cube-designer thead button[value="' + propertyType + '"]').removeClass('dn');
 
-"<http://example.org/structure/foo>\n" +
-"    a qb:DataStructureDefinition ;\n" +
-"    qb:component\n" +
-"        " + components + "\n" +
-"    .\n\n" +
+                if($(this).closest('td[class="qb:DimensionProperty"]').length > 0) {
+                    var thQBDimensionProperty = $('#lsd-cube-designer thead th[colspan]');
 
-componentSpecification
-
-;
-
-                            location.href = 'data:text/turtle;charset=utf-8,' + encodeURIComponent(data);
-                        });
+                    if(thQBDimensionProperty.attr('colspan') > 1) {
+                        $(this).closest('td[class="qb:DimensionProperty"]').remove();
+                        thQBDimensionProperty.attr('colspan', (parseInt(thQBDimensionProperty.attr('colspan'))-1));
                     }
                     else {
-                        $('.downloadButton:enabled').removeAttr('enabled').attr('disabled', 'disabled');
-                        $('#export').removeClass('opacity-1');                    
+                        $(this).parent().empty();
                     }
 
-                });
+                    $.each(LSD.C.Property, function(i, v) {
+                        LSD.C.Property[i]["index"] -= 1;
+                    });
+                }
+                else {
+                    $(this).parent().empty();
+                }
+
+                if ($('.qbComponentProperty tbody td[class="qb:DimensionProperty"] .property').length == 0 ||
+                    $('.qbComponentProperty tbody td[class="qb:MeasureProperty"] .property').length == 0 ||
+                    $('.qbComponentProperty tbody td[class="qb:AttributeProperty"] .property').length == 0) {
+                    $('.downloadButton:enabled').removeAttr('enabled').attr('disabled', 'disabled');
+                    $('#export').removeClass('opacity-1');
+                }
             });
+
+
+            $('#export').on('click', '.downloadButton', function(event) {
+                var components = componentSpecification = '';
+                var delimiter = '/';
+                var start = 3;
+                var componentsList = {};
+
+                components = "<" + $.map($('.qbComponentProperty tbody a.property'), function( i ) {
+                    var property = i.href;
+                    var c = "http://example.org/component/foo/" + property.split(delimiter).slice(start).join(delimiter);
+                    componentsList[property] = c;
+                    return c;
+                }).join("> ,\n        <") + ">";
+
+                $.each($('.qbComponentProperty tbody td'), function(index, value) {
+                    var cSProperty = cSOrder = '';
+                    var cProperty = $(value).find("a.property").attr("href");
+
+                    switch($(value).attr('class')) {
+                        case 'qb:DimensionProperty':
+                        cSProperty = 'qb:dimension';
+                        cSOrder = " ;\n    qb:order \"" + (index+1) + "\"^^xsd:int" ;
+                        break;
+                    case 'qb:MeasureProperty':
+                        cSProperty = 'qb:measure';
+                        break;
+                    case 'qb:AttributeProperty':
+                        cSProperty = 'qb:attribute';
+                        break;
+                    }
+
+                    componentSpecification += "<" + componentsList[cProperty] + ">\n" +
+                    "    a qb:ComponentSpecification ;\n" +
+                    "    qb:componentProperty <" + cProperty + "> ;\n" +
+                    "    " + cSProperty + " <" + cProperty + ">";
+
+                    componentSpecification += cSOrder;
+
+                    componentSpecification += "\n    .\n\n"
+                });
+
+                var data =
+                    "# Created using LSD Cube Designer https://github.com/csarven/lsd-cube-designer\n" +
+                    "@prefix e: <http://example.org/> .\n" +
+                    "@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .\n" +
+                    "@prefix skos: <http://www.w3.org/2004/02/skos/core#> .\n" +
+                    "@prefix qb: <http://purl.org/linked-data/cube#> .\n" +
+                    "@prefix sdmx: <http://purl.org/linked-data/sdmx#> .\n\n" +
+
+                    "# Example dataset using the structure:\n" +
+                    "#<http://example.org/dataset/foo>\n" +
+                    "#    a qb:DataSet ;\n" +
+                    "#    qb:structure <http://example.org/structure/foo> ;\n" +
+                    "#    .\n\n" +
+
+                    "<http://example.org/structure/foo>\n" +
+                    "    a qb:DataStructureDefinition ;\n" +
+                    "    qb:component\n" +
+                    "        " + components + "\n" +
+                    "    .\n\n" +
+
+                    componentSpecification
+
+                    ;
+
+                location.href = 'data:text/turtle;charset=utf-8,' + encodeURIComponent(data);
+            });
+
 
 //            $('.results').on('click', '.inquiryButton', function(event) {
 ////TODO: Show concept scheme and example codes from a codelists, definitions?

@@ -110,7 +110,53 @@ var LSD = {
 
     U: {
         init: function () {
+            var lsdCubeDesigner = $('#lsd-cube-designer').get(0).outerHTML;
+            var historyObject = JSON.stringify({html: lsdCubeDesigner, properties: LSD.C.Property});
+            window.history.replaceState(historyObject, null, document.URL);
+
             LSD.U.getInput();
+
+            window.onpopstate = function(event) {
+                if (event.state == null) { return; }
+
+                $('#lsd-cube-designer').replaceWith(JSON.parse(event.state).html);
+                LSD.C.Property = JSON.parse(event.state).properties;
+
+                LSD.U.getInput();
+            };
+        },
+
+        historyUpdate: function() {
+            var lsdCubeDesigner = $('#lsd-cube-designer').get(0).outerHTML;
+            var historyObject = JSON.stringify({html: lsdCubeDesigner, properties: LSD.C.Property});
+
+            var qbDPs = [], qbMPs = [], qbAPs = [];
+
+            var historyURL = '';
+
+            var properties = $('#lsd-cube-designer tr:first-child td .property');
+
+            if (properties.length > 0) {
+                $.each(properties, function(i, property) {
+                    switch($(this).parent().attr('class')) {
+                        case 'qb:DimensionProperty':
+                            qbDPs.push(encodeURIComponent(property.href));
+                            break;
+                        case 'qb:MeasureProperty':
+                            qbMPs.push(encodeURIComponent(property.href));
+                            break;
+                        case 'qb:AttributeProperty':
+                            qbAPs.push(encodeURIComponent(property.href));
+                            break;
+                    }
+                });
+
+                historyURL = '?qb:DimensionProperty=' + qbDPs.join() +
+                             '&qb:MeasureProperty='   + qbMPs.join() +
+                             '&qb:AttributeProperty=' + qbAPs.join();
+            }
+
+            window.history.pushState(historyObject, null, historyURL);
         },
 
         encodeString: function(string) {
@@ -254,6 +300,8 @@ var LSD = {
                     $('.downloadButton:enabled').removeAttr('enabled').attr('disabled', 'disabled');
                     $('#export').removeClass('opacity-1');
                 }
+
+                LSD.U.historyUpdate();
             });
 
 
@@ -288,6 +336,8 @@ var LSD = {
                     $('.downloadButton:enabled').removeAttr('enabled').attr('disabled', 'disabled');
                     $('#export').removeClass('opacity-1');
                 }
+
+                LSD.U.historyUpdate();
             });
 
 

@@ -290,8 +290,7 @@ var LSD = {
                 $('#lsd-cube-designer tbody tr:first-child td:nth-child(' + (i+1) + ')').html(property.get(0).outerHTML + ' <button class="removeButton" value="' + propertyType + '">x</button>');
 
                 if ($('.qbComponentProperty tbody td[class="qb:DimensionProperty"] .property').length > 0 &&
-                    $('.qbComponentProperty tbody td[class="qb:MeasureProperty"] .property').length > 0 &&
-                    $('.qbComponentProperty tbody td[class="qb:AttributeProperty"] .property').length > 0) {
+                    $('.qbComponentProperty tbody td[class="qb:MeasureProperty"] .property').length > 0) {
 
                     $('.downloadButton:disabled').removeAttr('disabled').attr('enabled', 'enabled');
                     $('#export').addClass('opacity-1');
@@ -331,8 +330,7 @@ var LSD = {
                 }
 
                 if ($('.qbComponentProperty tbody td[class="qb:DimensionProperty"] .property').length == 0 ||
-                    $('.qbComponentProperty tbody td[class="qb:MeasureProperty"] .property').length == 0 ||
-                    $('.qbComponentProperty tbody td[class="qb:AttributeProperty"] .property').length == 0) {
+                    $('.qbComponentProperty tbody td[class="qb:MeasureProperty"] .property').length == 0) {
                     $('.downloadButton:enabled').removeAttr('enabled').attr('disabled', 'disabled');
                     $('#export').removeClass('opacity-1');
                 }

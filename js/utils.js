@@ -358,15 +358,15 @@ var LSD = {
 
                     switch($(value).attr('class')) {
                         case 'qb:DimensionProperty':
-                        cSProperty = 'qb:dimension';
-                        cSOrder = " ;\n    qb:order \"" + (index+1) + "\"^^xsd:int" ;
-                        break;
-                    case 'qb:MeasureProperty':
-                        cSProperty = 'qb:measure';
-                        break;
-                    case 'qb:AttributeProperty':
-                        cSProperty = 'qb:attribute';
-                        break;
+                            cSProperty = 'qb:dimension';
+                            cSOrder = " ;\n    qb:order \"" + (index+1) + "\"^^xsd:int" ;
+                            break;
+                        case 'qb:MeasureProperty':
+                            cSProperty = 'qb:measure';
+                            break;
+                        case 'qb:AttributeProperty':
+                            cSProperty = 'qb:attribute';
+                            break;
                     }
 
                     componentSpecification += "<" + componentsList[cProperty] + ">\n" +

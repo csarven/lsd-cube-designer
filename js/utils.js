@@ -5,7 +5,6 @@
  */
 
 var LSD = {
-
     C : {
         Org: [
             {
@@ -414,121 +413,152 @@ var LSD = {
         },
 
         createSPARQLQueryURLCodeList: function(sparqlEndpoint, property) {
-//PREFIX owl: <http://www.w3.org/2002/07/owl#>
-//PREFIX dcterms: <http://purl.org/dc/terms/>
-//PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
-//PREFIX qb: <http://purl.org/linked-data/cube#>
+var query= "PREFIX owl: <http://www.w3.org/2002/07/owl#>\n\
+PREFIX dcterms: <http://purl.org/dc/terms/>\n\
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>\n\
+PREFIX qb: <http://purl.org/linked-data/cube#>\n\
+CONSTRUCT {\n\
+    <" + property + "> qb:codeList ?codeList .\n\
+    ?codeList skos:hasTopConcept ?hasTopConcept .\n\
+    ?hasTopConcept skos:prefLabel ?hasTopConceptPrefLabel .\n\
+    ?codeList skos:prefLabel ?prefLabel .\n\
+    ?codeList skos:definition ?definition .\n\
+    ?codeList dcterms:license ?license .\n\
+    ?codeList owl:versionInfo ?versionInfo .\n\
+    ?codeList dcterms:issued ?issued .\n\
+}\n\
+WHERE {\n\
+    {\n\
+        SELECT ?codeList ?hasTopConcept ?hasTopConceptPrefLabel\n\
+        WHERE {\n\
+            <" + property + "> qb:codeList ?codeList .\n\
+            OPTIONAL {\n\
+                ?codeList skos:hasTopConcept ?hasTopConcept .\n\
+                OPTIONAL { ?hasTopConcept skos:prefLabel ?hasTopConceptPrefLabel . }\n\
+            }\n\
+        }\n\
+        LIMIT 1\n\
+    }\n\
+    OPTIONAL { ?codeList skos:prefLabel ?prefLabel . }\n\
+    OPTIONAL { ?codeList skos:definition ?definition . }\n\
+    OPTIONAL { ?codeList dcterms:license ?license . }\n\
+    OPTIONAL { ?codeList owl:versionInfo ?versionInfo . }\n\
+    OPTIONAL { ?codeList dcterms:issued ?issued . }\n\
+}\n\
+LIMIT 1";
 
-//SELECT *
-//WHERE {
-//    {
-//        SELECT ?codeList ?hasTopConcept ?hasTopConceptPrefLabel
-//        WHERE {
-//            <http://oecd.270a.info/attribute/1.0/TIME_FORMAT> qb:codeList ?codeList .
-//            OPTIONAL {
-//                ?codeList skos:hasTopConcept ?hasTopConcept .
-//                OPTIONAL { ?hasTopConcept skos:prefLabel ?hasTopConceptPrefLabel . }
-//            }
-//        }
-//        LIMIT 1
-//    }
-//    OPTIONAL { ?codeList skos:prefLabel ?prefLabel . }
-//    OPTIONAL { ?codeList skos:definition ?definition . }
-//    OPTIONAL { ?codeList dcterms:license ?license . }
-//    OPTIONAL { ?codeList owl:versionInfo ?versionInfo . }
-//    OPTIONAL { ?codeList dcterms:issued ?issued . }
-//}
-//LIMIT 1
-
-            return sparqlEndpoint + "?query=PREFIX+owl%3A+%3Chttp%3A%2F%2Fwww.w3.org%2F2002%2F07%2Fowl%23%3E%0D%0APREFIX+dcterms%3A+%3Chttp%3A%2F%2Fpurl.org%2Fdc%2Fterms%2F%3E%0D%0APREFIX+skos%3A+%3Chttp%3A%2F%2Fwww.w3.org%2F2004%2F02%2Fskos%2Fcore%23%3E%0D%0APREFIX+qb%3A+%3Chttp%3A%2F%2Fpurl.org%2Flinked-data%2Fcube%23%3E%0D%0A%0D%0ASELECT+*%0D%0AWHERE+{%0D%0A++++{%0D%0A++++++++SELECT+%3FcodeList+%3FhasTopConcept+%3FhasTopConceptPrefLabel%0D%0A++++++++WHERE+{%0D%0A++++++++++++%3C" + property + "%3E+qb%3AcodeList+%3FcodeList+.%0D%0A++++++++++++OPTIONAL+{%0D%0A++++++++++++++++%3FcodeList+skos%3AhasTopConcept+%3FhasTopConcept+.%0D%0A++++++++++++++++OPTIONAL+{+%3FhasTopConcept+skos%3AprefLabel+%3FhasTopConceptPrefLabel+.+}%0D%0A++++++++++++}%0D%0A++++++++}%0D%0A++++++++LIMIT+1%0D%0A++++}%0D%0A++++OPTIONAL+{+%3FcodeList+skos%3AprefLabel+%3FprefLabel+.+}%0D%0A++++OPTIONAL+{+%3FcodeList+skos%3Adefinition+%3Fdefinition+.+}%0D%0A++++OPTIONAL+{+%3FcodeList+dcterms%3Alicense+%3Flicense+.+}%0D%0A++++OPTIONAL+{+%3FcodeList+owl%3AversionInfo+%3FversionInfo+.+}%0D%0A++++OPTIONAL+{+%3FcodeList+dcterms%3Aissued+%3Fissued+.+}%0D%0A}%0D%0ALIMIT+1";
+            return sparqlEndpoint + "?query=" + LSD.U.encodeString(query);
         },
 
         createSPARQLQueryURLWithTextInput: function(sparqlEndpoint, propertyType, textInput) {
-//PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
-//PREFIX qb: <http://purl.org/linked-data/cube#>
-
-//SELECT *
-//WHERE {
-//    ?property a qb:MeasureProperty .
-//    OPTIONAL { ?property skos:prefLabel ?prefLabel . }
-//    OPTIONAL { ?property qb:concept/skos:prefLabel ?prefLabel . }
-//    OPTIONAL {
-//        ?property qb:concept/skos:topConceptOf ?conceptScheme .
-//        ?conceptScheme skos:prefLabel ?conceptSchemePrefLabel . 
-//    }
-//    FILTER (REGEX(?prefLabel, "value", 'i'))
-//}
-
-            return sparqlEndpoint + "?query=PREFIX+skos%3A+%3Chttp%3A%2F%2Fwww.w3.org%2F2004%2F02%2Fskos%2Fcore%23%3E%0D%0APREFIX+qb%3A+%3Chttp%3A%2F%2Fpurl.org%2Flinked-data%2Fcube%23%3E%0D%0A%0D%0ASELECT+*%0D%0AWHERE+{%0D%0A++++%3Fproperty+a+" + propertyType + "+.%0D%0A++++OPTIONAL+{+%3Fproperty+skos%3AprefLabel+%3FprefLabel+.+}%0D%0A++++OPTIONAL+{+%3Fproperty+qb%3Aconcept%2Fskos%3AprefLabel+%3FprefLabel+.+}%0D%0A++++OPTIONAL+{%0D%0A++++++++%3Fproperty+qb%3Aconcept%2Fskos%3AtopConceptOf+%3FconceptScheme+.%0D%0A++++++++%3FconceptScheme+skos%3AprefLabel+%3FconceptSchemePrefLabel+.+%0D%0A++++}%0D%0A++++FILTER+%28REGEX%28%3FprefLabel%2C+%22" + textInput + "%22%2C+%27i%27%29%29%0D%0A}";
+var query = "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\n\
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>\n\
+PREFIX qb: <http://purl.org/linked-data/cube#>\n\
+CONSTRUCT {\n\
+    ?property skos:prefLabel ?prefLabel .\n\
+}\n\
+WHERE {\n\
+    ?property a " + propertyType + " .\n\
+    OPTIONAL { ?property skos:prefLabel ?prefLabel . }\n\
+    OPTIONAL { ?property rdfs:label ?prefLabel . }\n\
+    OPTIONAL { ?property qb:concept/skos:prefLabel ?prefLabel . }\n\
+    OPTIONAL { ?property qb:concept/rdfs:label ?prefLabel . }\n\
+    FILTER (REGEX(?prefLabel, '" + textInput +"', 'i'))\n\
+    FILTER (LANG(?prefLabel) = '' || LANGMATCHES(LANG(?prefLabel), 'en'))\n\
+}";
+            return sparqlEndpoint + "?query=" + LSD.U.encodeString(query);
         },
 
         getSPARQLQuery: function(queryURL, queryType, resultsNode, org) {
-           $.ajax({
-                type: 'GET',
-                dataType: 'json',
-                url: queryURL,
-//                data: '&output=json',
-//                mimeType: 'application/sparql-results+json,
+            rdfstore.create(function(store) {
+//            new rdfstore.Store({persistent:false, name:org["void:sparqlEndpoint"], overwrite:true}, function(store){
 
-                beforeSend: function(xhr) {
-                    resultsNode.addClass(LSD.S.Processing);
-                },
-                error: function (xhr, textStatus, errorThrown) {
-//TODO
-                    var errorReported = null;
-//                    if (xhr.responseXML) {
-//                        errorReported = $('#error', xhr.responseXML).text();
-//                    }
-                    alert(errorReported || errorThrown || textStatus);
-
-                    resultsNode.removeClass(LSD.S.Processing);
-                },
-                timeout: 5000,
-                success: function(data, textStatus) {
-                    if (data.results.bindings.length > 0) {
-                        switch(queryType) {
+//                var query = 'LOAD <' + queryURL + '> INTO GRAPH <' + org["void:sparqlEndpoint"] + '>';
+                store.load('remote', queryURL, function(success, results){
+//                store.execute(query, function(success, results){
+                    if (success) {
+                       switch(queryType) {
                             case 'getPropertyInfo':
-                                var results = '<li class="' + org["dcterms:identifier"].toLowerCase() + '"><a target="_blank" href="' + org["foaf:homepage"] + '">' + org["foaf:name"] + '</a> (' + org["dcterms:identifier"] + ') <ul>';
-                                $.each(data.results.bindings, function(index, object) {
-                                    var conceptSchemePrefLabel = '';
-                                    if (object.conceptSchemePrefLabel) {
-                                        conceptSchemePrefLabel = ' (<a target="_blank" href="' + object.conceptScheme.value + '">' + object.conceptSchemePrefLabel.value + '</a>)';
-                                    }
-
-                                    results += '<li><a class="property" target="_blank" href="' + object.property.value + '">' + object.prefLabel.value + '</a>' + conceptSchemePrefLabel + ' <button class="moreButton" value="' + object.property.value + '" title="' + org["void:sparqlEndpoint"] + '">&#8505;</button></li>';
-                                });
-                                results += '</ul></li>';
+                                var query ="PREFIX skos: <http://www.w3.org/2004/02/skos/core#>\n\
+SELECT ?property ?prefLabel\n\
+WHERE {\n\
+    ?property skos:prefLabel ?prefLabel .\n\
+}";
                                 break;
 
                             case 'getCodeListInfo':
-                                var results = codeList = definition = prefLabel = license = versionInfo = issued = hasTopConcept = '';
-
-                                $.each(data.results.bindings, function(index, object) {
-                                    prefLabel += (typeof object.prefLabel !== "undefined") ? object.prefLabel.value : object.codeList.value ;
-                                    codeList += '<a target="_blank" href="' + object.codeList.value + '">' + prefLabel + '</a>';
-
-                                    definition += (typeof object.definition !== "undefined") ? '<li>' + codeList + ': ' + object.definition.value + '</li>' : '<li>' + codeList + '</li>';
-
-                                    var hasTopConceptPrefLabel =  '';
-                                    hasTopConcept += (typeof object.hasTopConcept !== "undefined") ? '<li>e.g: <a  target="_blank" href="' + object.hasTopConcept.value + '">' + ((typeof object.hasTopConceptPrefLabel !== "undefined" && object.hasTopConceptPrefLabel.value != '') ? object.hasTopConceptPrefLabel.value : object.hasTopConcept.value) + '</a></li>' : '';
-
-                                    license += (typeof object.license !== "undefined") ? '<li>License: <a target="_blank" href="' + object.license.value + '">' + object.license.value + '</a></li>' : '';
-
-                                    versionInfo += (typeof object.versionInfo !== "undefined") ? '<li>Version: ' + object.versionInfo.value + '</li>' : '';
-
-                                    issued += (typeof object.issued !== "undefined") ? '<li>Issued: ' + object.issued.value + '</li>' : '';
-                                });
-
-                                results += '<ul class="qbCodeListInfo">' + definition + hasTopConcept + license + versionInfo + issued + '</ul>';
-
+                                var query ="PREFIX owl: <http://www.w3.org/2002/07/owl#>\n\
+PREFIX dcterms: <http://purl.org/dc/terms/>\n\
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>\n\
+PREFIX qb: <http://purl.org/linked-data/cube#>\n\
+SELECT ?property ?codeList ?prefLabel ?definition ?license ?versionInfo ?issued ?hasTopConcept ?hasTopConceptPrefLabel\n\
+WHERE {\n\
+    ?property qb:codeList ?codeList .\n\
+    OPTIONAL { ?codeList skos:prefLabel ?prefLabel .}\n\
+    OPTIONAL { ?codeList skos:hasTopConcept ?hasTopConcept .}\n\
+    OPTIONAL { ?hasTopConcept skos:prefLabel ?hasTopConceptPrefLabel . }\n\
+    OPTIONAL { ?codeList skos:definition ?definition . }\n\
+    OPTIONAL { ?codeList dcterms:license ?license . }\n\
+    OPTIONAL { ?codeList owl:versionInfo ?versionInfo . }\n\
+    OPTIONAL { ?codeList dcterms:issued ?issued . }\n\
+}";
                                 break;
                         }
 
-                        resultsNode.append(results);
-                        resultsNode.removeClass(LSD.S.Processing + ' ' + LSD.S.NoMatches);
-                        resultsNode.find('.note').remove();
+                        store.execute(query, function(success, results) {
+                            console.log(results);
+                            if (results.length > 0) {
+                                var s = '';
+
+                                switch(queryType) {
+                                    case 'getPropertyInfo':
+                                        s += '<li class="' + org["dcterms:identifier"].toLowerCase() + '"><a target="_blank" href="' + org["foaf:homepage"] + '">' + org["foaf:name"] + '</a> (' + org["dcterms:identifier"] + ') <ul>';
+                                        $.each(results, function(index, object) {
+                                            var conceptSchemePrefLabel = '';
+                                            if (object.conceptSchemePrefLabel) {
+                                                conceptSchemePrefLabel = ' (<a target="_blank" href="' + object.conceptScheme.value + '">' + object.conceptSchemePrefLabel.value + '</a>)';
+                                            }
+
+                                            s += '<li><a class="property" target="_blank" href="' + object.property.value + '">' + object.prefLabel.value + '</a>' + conceptSchemePrefLabel + ' <button class="moreButton" value="' + object.property.value + '" title="' + org["void:sparqlEndpoint"] + '">&#8505;</button></li>';
+                                        });
+                                        s += '</ul></li>';
+                                        break;
+
+                                    case 'getCodeListInfo':
+                                        var codeList = definition = prefLabel = license = versionInfo = issued = hasTopConcept = '';
+
+                                        $.each(results, function(index, object) {console.log(object);
+                                            prefLabel += (object.prefLabel) ? object.prefLabel.value : object.codeList.value ;
+                                            codeList += '<a target="_blank" href="' + object.codeList.value + '">' + prefLabel + '</a>';
+
+                                            definition += (object.definition) ? '<li>' + codeList + ': ' + object.definition.value + '</li>' : '<li>' + codeList + '</li>';
+
+                                            var hasTopConceptPrefLabel =  '';
+                                            hasTopConcept += (object.hasTopConcept) ? '<li>e.g: <a  target="_blank" href="' + object.hasTopConcept.value + '">' + ((object.hasTopConceptPrefLabel && object.hasTopConceptPrefLabel.value != '') ? object.hasTopConceptPrefLabel.value : object.hasTopConcept.value) + '</a></li>' : '';
+
+                                            license += (object.license) ? '<li>License: <a target="_blank" href="' + object.license.value + '">' + object.license.value + '</a></li>' : '';
+
+                                            versionInfo += (object.versionInfo) ? '<li>Version: ' + object.versionInfo.value + '</li>' : '';
+
+                                            issued += (object.issued) ? '<li>Issued: ' + object.issued.value + '</li>' : '';
+                                        });
+
+                                        s += '<ul class="qbCodeListInfo">' + definition + hasTopConcept + license + versionInfo + issued + '</ul>';
+
+                                        break;
+                                }
+
+                                resultsNode.append(s);
+                                resultsNode.removeClass(LSD.S.Processing + ' ' + LSD.S.NoMatches);
+                                resultsNode.find('.note').remove();
+                            }
+
+                        });
                     }
-                }
+                    else {
+                        //TODO
+                    }
+                });
             });
         }
     }

@@ -277,7 +277,10 @@ var LSD = {
 
             LSD.U.getInput();
 
-            LSD.U.downloadButtonRefresh();
+            if (qbDimensionProperty && qbMeasureProperty) {
+                $('.downloadButton:disabled').removeAttr('disabled').attr('enabled', 'enabled');
+                $('#export').addClass('opacity-1');
+            }
         },
 
         encodeString: function(string) {

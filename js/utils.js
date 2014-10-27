@@ -109,11 +109,16 @@ var LSD = {
 
     U: {
         init: function () {
+            if (window.location.search.length > 0) {
+                LSD.U.buildStructureFromURL();
+            }
+            else {
+                LSD.U.getInput();
+            }
+
             var lsdCubeDesigner = $('#lsd-cube-designer').get(0).outerHTML;
             var historyObject = JSON.stringify({html: lsdCubeDesigner, properties: LSD.C.Property});
             window.history.replaceState(historyObject, null, document.URL);
-
-            LSD.U.getInput();
 
             window.onpopstate = function(event) {
                 if (event.state == null) { return; }
@@ -153,9 +158,91 @@ var LSD = {
                 historyURL = '?qb:DimensionProperty=' + qbDPs.join() +
                              '&qb:MeasureProperty='   + qbMPs.join() +
                              '&qb:AttributeProperty=' + qbAPs.join();
+
+                window.history.pushState(historyObject, null, historyURL);
+            }
+            else {
+                window.history.pushState(historyObject, null, '/');
+            }
+        },
+
+
+        urlParam: function(name) {
+            var results = new RegExp('[\?&]' + name + '=([^&#]*)').exec(window.location.href);
+            if (results==null){
+               return null;
+            }
+            else{
+               return results[1] || 0;
+            }
+        },
+
+
+        buildStructureFromURL: function() {
+            var qbDimensionProperty = LSD.U.urlParam('qb:DimensionProperty');
+            var qbMeasureProperty = LSD.U.urlParam('qb:MeasureProperty');
+            var qbAttributeProperty = LSD.U.urlParam('qb:AttributeProperty');
+            var tds = '';
+
+            var tdParent = $('td[class="qb:DimensionProperty"]').parent();
+            tdParent.empty();
+
+            if(qbDimensionProperty) {
+                var qbDPs = qbDimensionProperty.split(',');
+                var qbDPsLength = qbDPs.length;
+
+                LSD.C.Property["qb:DimensionProperty"]["index"] = qbDPsLength;
+
+                $('th[class="qbDimensionProperty"]').attr('colspan', qbDPsLength);
+
+                $.each(qbDPs, function(i, v) {
+                    var iri = LSD.U.decodeString(v);
+                    var label = LSD.U.getIRILabel(iri);
+
+                    tds += '<td class="qb:DimensionProperty"><a target="_blank" class="property" href="' + iri + '">' + label + '</a> <button class="removeButton" value="qb:DimensionProperty">x</button></td>';
+                });
+            }
+            else {
+                tds += '<td class="qb:DimensionProperty"></td>';
             }
 
-            window.history.pushState(historyObject, null, historyURL);
+
+            if(qbMeasureProperty) {
+                var qbMPs = qbMeasureProperty.split(',');
+                var qbMPsLength = qbMPs.length;
+
+                LSD.C.Property["qb:MeasureProperty"]["index"] = LSD.C.Property["qb:DimensionProperty"]["index"] + qbMPsLength;
+
+                $.each(qbMPs, function(i, v) {
+                    var iri = LSD.U.decodeString(v);
+                    tds += '<td class="qb:MeasureProperty"><a target="_blank" class="property" href="' + iri + '">' + LSD.U.getIRILabel(iri) + '</a> <button class="removeButton" value="qb:MeasureProperty">x</button></td>';
+                });
+            }
+            else {
+                tds += '<td class="qb:MeasureProperty"></td>';
+            }
+
+
+            if(qbAttributeProperty) {
+                var qbAPs = qbAttributeProperty.split(',');
+                var qbAPsLength = qbAPs.length;
+
+                LSD.C.Property["qb:AttributeProperty"]["index"] = LSD.C.Property["qb:MeasureProperty"]["index"] + qbAPsLength;
+
+                $.each(qbAPs, function(i, v) {
+                    var iri = LSD.U.decodeString(v);
+                    tds += '<td class="qb:AttributeProperty"><a target="_blank" class="property" href="' + iri + '">' + LSD.U.getIRILabel(iri) + '</a> <button class="removeButton" value="qb:AttributeProperty">x</button></td>';
+                });
+            }
+            else {
+                tds += '<td class="qb:AttributeProperty"></td>';
+            }
+
+            tdParent.append(tds);
+
+            LSD.U.getInput();
+
+            LSD.U.downloadButtonRefresh();
         },
 
         encodeString: function(string) {
@@ -164,6 +251,20 @@ var LSD = {
         decodeString: function(string) {
 	        return decodeURIComponent(string.replace(/\+/g,  " "));
         },
+
+        downloadButtonRefresh: function() {
+            if ($('.qbComponentProperty tbody td[class="qb:DimensionProperty"] .property').length > 0 &&
+                $('.qbComponentProperty tbody td[class="qb:MeasureProperty"] .property').length > 0) {
+
+                $('.downloadButton:disabled').removeAttr('disabled').attr('enabled', 'enabled');
+                $('#export').addClass('opacity-1');
+            }
+            else {
+                $('.downloadButton:enabled').removeAttr('enabled').attr('disabled', 'disabled');
+                $('#export').removeClass('opacity-1');
+            }
+        },
+
 
         getInput: function() {
             $('.downloadButton').attr("disabled", "disabled");
@@ -288,16 +389,7 @@ var LSD = {
                 $('#lsd-cube-designer tbody td:nth-child(' + (i+1) + ') .results').remove();
                 $('#lsd-cube-designer tbody tr:first-child td:nth-child(' + (i+1) + ')').html(property.get(0).outerHTML + ' <button class="removeButton" value="' + propertyType + '">x</button>');
 
-                if ($('.qbComponentProperty tbody td[class="qb:DimensionProperty"] .property').length > 0 &&
-                    $('.qbComponentProperty tbody td[class="qb:MeasureProperty"] .property').length > 0) {
-
-                    $('.downloadButton:disabled').removeAttr('disabled').attr('enabled', 'enabled');
-                    $('#export').addClass('opacity-1');
-                }
-                else {
-                    $('.downloadButton:enabled').removeAttr('enabled').attr('disabled', 'disabled');
-                    $('#export').removeClass('opacity-1');
-                }
+                LSD.U.downloadButtonRefresh();
 
                 LSD.U.historyUpdate();
             });
@@ -328,11 +420,7 @@ var LSD = {
                     $(this).parent().empty();
                 }
 
-                if ($('.qbComponentProperty tbody td[class="qb:DimensionProperty"] .property').length == 0 ||
-                    $('.qbComponentProperty tbody td[class="qb:MeasureProperty"] .property').length == 0) {
-                    $('.downloadButton:enabled').removeAttr('enabled').attr('disabled', 'disabled');
-                    $('#export').removeClass('opacity-1');
-                }
+                LSD.U.downloadButtonRefresh();
 
                 LSD.U.historyUpdate();
             });
@@ -404,12 +492,6 @@ var LSD = {
 
                 location.href = 'data:text/turtle;charset=utf-8,' + encodeURIComponent(data);
             });
-
-
-//            $('.results').on('click', '.inquiryButton', function(event) {
-////TODO: Show concept scheme and example codes from a codelists, definitions?
-
-//            });
         },
 
         createSPARQLQueryURLCodeList: function(sparqlEndpoint, property) {
@@ -469,6 +551,105 @@ WHERE {\n\
             return sparqlEndpoint + "?query=" + LSD.U.encodeString(query);
         },
 
+
+        createSPARQLQueryURLWithIRILabel: function(sparqlEndpoint, iri) {
+var query = "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\n\
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>\n\
+PREFIX dcterms: <http://purl.org/dc/terms/>\n\
+PREFIX qb: <http://purl.org/linked-data/cube#>\n\
+CONSTRUCT {\n\
+    <" + iri + "> skos:prefLabel ?prefLabel .\n\
+}\n\
+WHERE {\n\
+    OPTIONAL { <" + iri + "> skos:prefLabel ?prefLabel . }\n\
+    OPTIONAL { <" + iri + "> rdfs:label ?prefLabel . }\n\
+    OPTIONAL { <" + iri + "> dcterms:title ?prefLabel . }\n\
+    OPTIONAL { <" + iri + "> qb:concept/skos:prefLabel ?prefLabel . }\n\
+    OPTIONAL { <" + iri + "> qb:concept/rdfs:label ?prefLabel . }\n\
+    OPTIONAL { <" + iri + "> skos:notation ?prefLabel . }\n\
+    OPTIONAL { <" + iri + "> dcterms:identifier ?prefLabel . }\n\
+}\n\
+LIMIT 1";
+            return sparqlEndpoint + "?query=" + LSD.U.encodeString(query);
+        },
+
+
+        getIRILabel: function(iri) {
+//console.log(iri);
+            var queryA = "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\n\
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>\n\
+PREFIX dcterms: <http://purl.org/dc/terms/>\n\
+PREFIX qb: <http://purl.org/linked-data/cube#>\n\
+SELECT ?prefLabel\n\
+WHERE {\n\
+    OPTIONAL { <" + iri + "> skos:prefLabel ?prefLabel . }\n\
+    OPTIONAL { <" + iri + "> rdfs:label ?prefLabel . }\n\
+    OPTIONAL { <" + iri + "> dcterms:title ?prefLabel . }\n\
+    OPTIONAL { <" + iri + "> skos:notation ?prefLabel . }\n\
+    OPTIONAL { <" + iri + "> dcterms:identifier ?prefLabel . }\n\
+}\n\
+LIMIT 1";
+//console.log(queryA);
+
+            var queryB = "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\n\
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>\n\
+PREFIX dcterms: <http://purl.org/dc/terms/>\n\
+PREFIX qb: <http://purl.org/linked-data/cube#>\n\
+SELECT ?concept\n\
+WHERE {\n\
+    <" + iri + "> qb:concept ?concept .\n\
+}\n\
+LIMIT 1";
+//console.log(queryB);
+            var label = iri;
+            var store = rdfstore.create();
+            store.load('remote', iri, function(success, results){
+                if (success) {
+//                        console.log('queryA');
+                    store.execute(queryA, function(success, results) {
+//                            console.log(results);
+                        if (results.length > 0) {
+                            label = results[0].prefLabel.value;
+                        }
+                        else {
+//                                console.log('queryB');
+                            store.execute(queryB, function(success, results) {
+//                                    console.log(results);
+                                if (results.length > 0) {
+                                    var concept = results[0].concept.value;
+//console.log(concept);
+                                    var queryC = "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\n\
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>\n\
+PREFIX dcterms: <http://purl.org/dc/terms/>\n\
+PREFIX qb: <http://purl.org/linked-data/cube#>\n\
+SELECT ?prefLabel\n\
+WHERE {\n\
+    <" + concept + "> skos:prefLabel ?prefLabel .\n\
+    OPTIONAL { <" + concept + "> rdfs:label ?prefLabel . }\n\
+}\n\
+LIMIT 1";
+//console.log(queryC);
+                                    var store = rdfstore.create();
+                                    store.load('remote', concept, function(success, results){
+                                        if (success) {
+                                            store.execute(queryC, function(success, results) {
+                                                if (results.length > 0) {
+                                                    label = results[0].prefLabel.value;
+                                                }
+                                            });
+                                        }
+                                    });
+                                }
+                            });
+                        }
+                    });
+                }
+            });
+
+            return label;
+        },
+
+
         getSPARQLQuery: function(queryURL, queryType, resultsNode, org) {
             rdfstore.create(function(store) {
 //            new rdfstore.Store({persistent:false, name:org["void:sparqlEndpoint"], overwrite:true}, function(store){
@@ -506,7 +687,6 @@ WHERE {\n\
                         }
 
                         store.execute(query, function(success, results) {
-                            console.log(results);
                             if (results.length > 0) {
                                 var s = '';
 
@@ -527,7 +707,7 @@ WHERE {\n\
                                     case 'getCodeListInfo':
                                         var codeList = definition = prefLabel = license = versionInfo = issued = hasTopConcept = '';
 
-                                        $.each(results, function(index, object) {console.log(object);
+                                        $.each(results, function(index, object) {
                                             prefLabel += (object.prefLabel) ? object.prefLabel.value : object.codeList.value ;
                                             codeList += '<a target="_blank" href="' + object.codeList.value + '">' + prefLabel + '</a>';
 
@@ -544,7 +724,6 @@ WHERE {\n\
                                         });
 
                                         s += '<ul class="qbCodeListInfo">' + definition + hasTopConcept + license + versionInfo + issued + '</ul>';
-
                                         break;
                                 }
 

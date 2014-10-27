@@ -6,6 +6,8 @@
 
 var LSD = {
     C : {
+        Lang: 'en',
+
         Org: [
             {
                 "foaf:homepage": "http://worldbank.270a.info/",
@@ -195,14 +197,10 @@ var LSD = {
 
                 $('th[class="qbDimensionProperty"]').attr('colspan', qbDPsLength);
 
-                $.each(qbDPs, function(i, v) {
-                    var iri = LSD.U.decodeString(v);
-                    var label = LSD.U.getIRILabel(iri);
-
-                    tds += '<td class="qb:DimensionProperty"><a target="_blank" class="property" href="' + iri + '">' + label + '</a> <button class="removeButton" value="qb:DimensionProperty">x</button></td>';
-                });
+                $.each(qbDPs, function(i, v) { tds += '<td class="qb:DimensionProperty"></td>'; });
             }
             else {
+                LSD.C.Property["qb:DimensionProperty"]["index"] = 1;
                 tds += '<td class="qb:DimensionProperty"></td>';
             }
 
@@ -213,12 +211,10 @@ var LSD = {
 
                 LSD.C.Property["qb:MeasureProperty"]["index"] = LSD.C.Property["qb:DimensionProperty"]["index"] + qbMPsLength;
 
-                $.each(qbMPs, function(i, v) {
-                    var iri = LSD.U.decodeString(v);
-                    tds += '<td class="qb:MeasureProperty"><a target="_blank" class="property" href="' + iri + '">' + LSD.U.getIRILabel(iri) + '</a> <button class="removeButton" value="qb:MeasureProperty">x</button></td>';
-                });
+                $.each(qbMPs, function(i, v) { tds += '<td class="qb:MeasureProperty"></td>'; });
             }
             else {
+                LSD.C.Property["qb:MeasureProperty"]["index"] = LSD.C.Property["qb:DimensionProperty"]["index"] + 1;
                 tds += '<td class="qb:MeasureProperty"></td>';
             }
 
@@ -229,16 +225,55 @@ var LSD = {
 
                 LSD.C.Property["qb:AttributeProperty"]["index"] = LSD.C.Property["qb:MeasureProperty"]["index"] + qbAPsLength;
 
-                $.each(qbAPs, function(i, v) {
-                    var iri = LSD.U.decodeString(v);
-                    tds += '<td class="qb:AttributeProperty"><a target="_blank" class="property" href="' + iri + '">' + LSD.U.getIRILabel(iri) + '</a> <button class="removeButton" value="qb:AttributeProperty">x</button></td>';
-                });
+                $.each(qbAPs, function(i, v) { tds += '<td class="qb:AttributeProperty"></td>'; });
             }
             else {
+                LSD.C.Property["qb:AttributeProperty"]["index"] = LSD.C.Property["qb:MeasureProperty"]["index"] + 1;
                 tds += '<td class="qb:AttributeProperty"></td>';
             }
 
             tdParent.append(tds);
+
+            if(qbDimensionProperty) {
+                var qbDPs = qbDimensionProperty.split(',');
+                var propertyType = 'qb:DimensionProperty';
+
+                for (var i = 0; i < qbDPs.length; i++) {
+                    (function (i) {
+                        var iri = LSD.U.decodeString(qbDPs[i]);
+                        var resultsNode = tdParent.find('td:nth-child(' + (i+1) + ')');
+                        LSD.U.getIRILabel(iri, propertyType, resultsNode);
+                    })(i);
+                };
+            }
+            if(qbMeasureProperty) {
+                var qbMPs = qbMeasureProperty.split(',');
+                var propertyType = 'qb:MeasureProperty';
+
+                for (var i = 0; i < qbMPs.length; i++) {
+                    (function (i) {
+                        var iri = LSD.U.decodeString(qbMPs[i]);
+                        var resultsNode = tdParent.find('td:nth-child(' + (LSD.C.Property[propertyType]["index"]+i) + ')');
+                        LSD.U.getIRILabel(iri, propertyType, resultsNode);
+                    })(i);
+                };
+
+                $('#lsd-cube-designer thead button[value="' + propertyType + '"]').addClass("dn");
+            }
+            if(qbAttributeProperty) {
+                var qbAPs = qbAttributeProperty.split(',');
+                var propertyType = 'qb:AttributeProperty';
+
+                for (var i = 0; i < qbAPs.length; i++) {
+                    (function (i) {
+                        var iri = LSD.U.decodeString(qbAPs[i]);
+                        var resultsNode = tdParent.find('td:nth-child(' + (LSD.C.Property[propertyType]["index"]+i) + ')');
+                        LSD.U.getIRILabel(iri, propertyType, resultsNode);
+                    })(i);
+                };
+
+                $('#lsd-cube-designer thead button[value="' + propertyType + '"]').addClass("dn");
+            }
 
             LSD.U.getInput();
 
@@ -546,7 +581,7 @@ WHERE {\n\
     OPTIONAL { ?property qb:concept/skos:prefLabel ?prefLabel . }\n\
     OPTIONAL { ?property qb:concept/rdfs:label ?prefLabel . }\n\
     FILTER (REGEX(?prefLabel, '" + textInput +"', 'i'))\n\
-    FILTER (LANG(?prefLabel) = '' || LANGMATCHES(LANG(?prefLabel), 'en'))\n\
+    FILTER (LANG(?prefLabel) = '' || LANGMATCHES(LANG(?prefLabel), '" + LSD.C.Lang + "'))\n\
 }";
             return sparqlEndpoint + "?query=" + LSD.U.encodeString(query);
         },
@@ -568,14 +603,14 @@ WHERE {\n\
     OPTIONAL { <" + iri + "> qb:concept/rdfs:label ?prefLabel . }\n\
     OPTIONAL { <" + iri + "> skos:notation ?prefLabel . }\n\
     OPTIONAL { <" + iri + "> dcterms:identifier ?prefLabel . }\n\
+    FILTER (LANG(?prefLabel) = '' || LANGMATCHES(LANG(?prefLabel), '" + LSD.C.Lang + "'))\n\
 }\n\
 LIMIT 1";
             return sparqlEndpoint + "?query=" + LSD.U.encodeString(query);
         },
 
 
-        getIRILabel: function(iri) {
-//console.log(iri);
+        getIRILabel: function(iri, propertyType, resultsNode) {
             var queryA = "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\n\
 PREFIX skos: <http://www.w3.org/2004/02/skos/core#>\n\
 PREFIX dcterms: <http://purl.org/dc/terms/>\n\
@@ -587,9 +622,9 @@ WHERE {\n\
     OPTIONAL { <" + iri + "> dcterms:title ?prefLabel . }\n\
     OPTIONAL { <" + iri + "> skos:notation ?prefLabel . }\n\
     OPTIONAL { <" + iri + "> dcterms:identifier ?prefLabel . }\n\
+    FILTER (LANG(?prefLabel) = '' || LANGMATCHES(LANG(?prefLabel), '" + LSD.C.Lang + "'))\n\
 }\n\
 LIMIT 1";
-//console.log(queryA);
 
             var queryB = "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\n\
 PREFIX skos: <http://www.w3.org/2004/02/skos/core#>\n\
@@ -600,24 +635,18 @@ WHERE {\n\
     <" + iri + "> qb:concept ?concept .\n\
 }\n\
 LIMIT 1";
-//console.log(queryB);
-            var label = iri;
+
             var store = rdfstore.create();
             store.load('remote', iri, function(success, results){
                 if (success) {
-//                        console.log('queryA');
                     store.execute(queryA, function(success, results) {
-//                            console.log(results);
                         if (results.length > 0) {
-                            label = results[0].prefLabel.value;
+                            resultsNode.append('<a target="_blank" class="property" href="' + iri + '">' + results[0].prefLabel.value + '</a> <button class="removeButton" value="'+ propertyType + '">x</button>');
                         }
                         else {
-//                                console.log('queryB');
                             store.execute(queryB, function(success, results) {
-//                                    console.log(results);
                                 if (results.length > 0) {
                                     var concept = results[0].concept.value;
-//console.log(concept);
                                     var queryC = "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\n\
 PREFIX skos: <http://www.w3.org/2004/02/skos/core#>\n\
 PREFIX dcterms: <http://purl.org/dc/terms/>\n\
@@ -626,15 +655,15 @@ SELECT ?prefLabel\n\
 WHERE {\n\
     <" + concept + "> skos:prefLabel ?prefLabel .\n\
     OPTIONAL { <" + concept + "> rdfs:label ?prefLabel . }\n\
+    FILTER (LANG(?prefLabel) = '' || LANGMATCHES(LANG(?prefLabel), '" + LSD.C.Lang + "'))\n\
 }\n\
 LIMIT 1";
-//console.log(queryC);
                                     var store = rdfstore.create();
                                     store.load('remote', concept, function(success, results){
                                         if (success) {
                                             store.execute(queryC, function(success, results) {
                                                 if (results.length > 0) {
-                                                    label = results[0].prefLabel.value;
+                                                    resultsNode.append('<a target="_blank" class="property" href="' + iri + '">' + results[0].prefLabel.value + '</a> <button class="removeButton" value="'+ propertyType + '">x</button>');
                                                 }
                                             });
                                         }
@@ -645,8 +674,6 @@ LIMIT 1";
                     });
                 }
             });
-
-            return label;
         },
 
 

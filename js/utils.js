@@ -583,6 +583,7 @@ WHERE {\n\
     OPTIONAL { ?property rdfs:label ?prefLabel . }\n\
     OPTIONAL { ?property qb:concept/skos:prefLabel ?prefLabel . }\n\
     OPTIONAL { ?property qb:concept/rdfs:label ?prefLabel . }\n\
+    FILTER (!STRSTARTS(STR(?property), 'http://purl.org/linked-data/sdmx/'))\n\
     FILTER (REGEX(?prefLabel, '" + textInput +"', 'i'))\n\
     FILTER (LANG(?prefLabel) = '' || LANGMATCHES(LANG(?prefLabel), '" + LSD.C.Lang + "'))\n\
 }";

@@ -113,14 +113,18 @@ var LSD = {
         init: function () {
             if (window.location.search.length > 0) {
                 LSD.U.buildStructureFromURL();
+
+                LSD.U.getInput();
+
+                setTimeout(function() {
+                    LSD.U.initHistory();
+                }, 3000);
             }
             else {
                 LSD.U.getInput();
-            }
 
-            var lsdCubeDesigner = $('#lsd-cube-designer').get(0).outerHTML;
-            var historyObject = JSON.stringify({html: lsdCubeDesigner, properties: LSD.C.Property});
-            window.history.replaceState(historyObject, null, document.URL);
+                LSD.U.initHistory();
+            }
 
             window.onpopstate = function(event) {
                 if (event.state == null) { return; }
@@ -130,6 +134,12 @@ var LSD = {
 
                 LSD.U.getInput();
             };
+        },
+
+        initHistory: function() {
+            var lsdCubeDesigner = $('#lsd-cube-designer').get(0).outerHTML;
+            var historyObject = JSON.stringify({html: lsdCubeDesigner, properties: LSD.C.Property});
+            window.history.replaceState(historyObject, null, document.URL);
         },
 
         historyUpdate: function() {
@@ -275,8 +285,6 @@ var LSD = {
                 $('#lsd-cube-designer thead button[value="' + propertyType + '"]').addClass("dn");
             }
 
-            LSD.U.getInput();
-
             if (qbDimensionProperty && qbMeasureProperty) {
                 $('.downloadButton:disabled').removeAttr('disabled').attr('enabled', 'enabled');
                 $('#export').addClass('opacity-1');
@@ -305,8 +313,6 @@ var LSD = {
 
 
         getInput: function() {
-            $('.downloadButton').attr("disabled", "disabled");
-
             $('#lsd-cube-designer').on('click', '.propertyButton', function(event) {
 //TODO: Sanitize
                 var propertyType = $(this).attr('value');

@@ -284,7 +284,7 @@ var LSD = {
         },
 
         encodeString: function(string) {
-	        return encodeURIComponent(string).replace(/'/g,"%27").replace(/"/g,"%22");	
+	        return encodeURIComponent(string).replace(/'/g,"%27").replace(/"/g,"%22");
         },
         decodeString: function(string) {
 	        return decodeURIComponent(string.replace(/\+/g,  " "));

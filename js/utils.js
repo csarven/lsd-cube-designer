@@ -736,7 +736,7 @@ WHERE {\n\
                                                 conceptSchemePrefLabel = ' (<a target="_blank" href="' + object.conceptScheme.value + '">' + object.conceptSchemePrefLabel.value + '</a>)';
                                             }
 
-                                            s += '<li><a class="property" target="_blank" href="' + object.property.value + '">' + object.prefLabel.value + '</a>' + conceptSchemePrefLabel + ' <button class="moreButton" value="' + object.property.value + '" title="' + org["void:sparqlEndpoint"] + '">&#8505;</button></li>';
+                                            s += '<li><a class="property" target="_blank" href="' + object.property.value + '">' + object.prefLabel.value + '</a>' + conceptSchemePrefLabel + ' <button class="moreButton" value="' + object.property.value + '" title="' + org["void:sparqlEndpoint"] + '">i</button></li>';
                                         });
                                         s += '</ul></li>';
                                         break;

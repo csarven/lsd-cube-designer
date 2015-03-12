@@ -101,6 +101,11 @@ width:36px;
 #lsd-cube-designer #wrap {
 max-width:1259px;
 }
+
+@media print {
+*:not([class="entry-content"]) { display:none; }
+}
+
         </style>
 
         <meta property="dcterms:description" name="description" content="A Web user-interface for researchers to design their own statistical Linked Data cubes. The statistical objects that are part of the cube model are derived from and refer to Linked Statistical Dataspaces. This LSD Cube Designer aims to lower the barrier for searching and reusing existing linked statistical components."/>
